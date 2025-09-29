@@ -12,6 +12,14 @@ const useStyles = makeStyles({
     justifyContent: 'center',
     margin: '32px 0 40px 0',
     width: '100%',
+    maxWidth: '600px',
+    minWidth: 0,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    '@media (max-width: 600px)': {
+      maxWidth: '100vw',
+      minWidth: '90vw',
+    },
   },
   searchRow: {
     display: 'flex',
@@ -20,6 +28,12 @@ const useStyles = makeStyles({
     gap: tokens.spacingHorizontalM,
     width: '100%',
     maxWidth: '400px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    '@media (max-width: 600px)': {
+      maxWidth: '90vw',
+      minWidth: 0,
+    },
   },
   grid: {
     display: 'grid',

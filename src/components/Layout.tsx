@@ -32,6 +32,17 @@ import { FluentProvider, webLightTheme, webDarkTheme, tokens, TabList, Tab, make
 import { Notebook20Regular } from '@fluentui/react-icons';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useState } from 'react';
+// 判断是否为手机端
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 600);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
 import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles({
@@ -152,6 +163,9 @@ const useStyles = makeStyles({
     '@media (max-width: 1100px)': {
       display: 'none',
     },
+    '@media (max-width: 600px)': {
+      display: 'none',
+    },
   },
   footer: {
     marginTop: tokens.spacingVerticalXXL,
@@ -188,6 +202,7 @@ import RenderedPage from './RenderedPage';
 export function Layout({ children }: PropsWithChildren) {
   // 已在顶部声明 navigate/location
   const styles = useStyles();
+  const isMobile = useIsMobile();
   const location = useLocation();
   const [site, setSite] = useState<any>(null);
   const [notice, setNotice] = useState<{ html: string; title?: string } | null>(null);
@@ -338,28 +353,51 @@ export function Layout({ children }: PropsWithChildren) {
       </header>
       <main className={styles.mainWrap}>
         <div className={styles.container}>{children}</div>
-        <aside className={styles.sidebar}>
-          {/* 作者信息块 */}
-          {site?.author && (
-            <section style={{ marginBottom: 32, paddingBottom: 20, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {!isMobile && (
+          <aside className={styles.sidebar}>
+            {/* 作者信息块 */}
+            {site?.author && (
+              <section style={{ marginBottom: 32, paddingBottom: 20, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <img src={site.author.avatar || site.icon || '/vite.svg'} alt="avatar" style={{ width: 48, height: 48, borderRadius: '50%' }} />
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{site.author.name}</div>
+                    <div style={{ fontSize: 13, color: tokens.colorNeutralForeground3 }}>{site.author.bio}</div>
+                  </div>
+                </div>
+              </section>
+            )}
+            {/* 公告块 */}
+            <section style={{ marginBottom: 32, paddingBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>公告</div>
+              <div style={{ fontSize: 14 }}>
+                <RenderedPage html={notice?.html || ''} />
+              </div>
+            </section>
+          </aside>
+        )}
+      </main>
+      {isMobile && (
+        <div style={{ maxWidth: 600, margin: '0 auto', width: '100%', padding: '16px 0' }}>
+          <div style={{ background: tokens.colorNeutralBackground2, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', padding: 20, margin: '0 8px' }}>
+            {site?.author && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, borderBottom: `1px solid ${tokens.colorNeutralStroke2}`, paddingBottom: 12 }}>
                 <img src={site.author.avatar || site.icon || '/vite.svg'} alt="avatar" style={{ width: 48, height: 48, borderRadius: '50%' }} />
                 <div>
                   <div style={{ fontWeight: 600 }}>{site.author.name}</div>
                   <div style={{ fontSize: 13, color: tokens.colorNeutralForeground3 }}>{site.author.bio}</div>
                 </div>
               </div>
-            </section>
-          )}
-          {/* 公告块 */}
-          <section style={{ marginBottom: 32, paddingBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>公告</div>
-            <div style={{ fontSize: 14 }}>
-              <RenderedPage html={notice?.html || ''} />
+            )}
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>公告</div>
+              <div style={{ fontSize: 14 }}>
+                <RenderedPage html={notice?.html || ''} />
+              </div>
             </div>
-          </section>
-        </aside>
-      </main>
+          </div>
+        </div>
+      )}
       <footer className={styles.footer}>
         <span dangerouslySetInnerHTML={{ __html: site?.footer || 'Powered by React + Fluent UI + Vite' }} />
       </footer>
