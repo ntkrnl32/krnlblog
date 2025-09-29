@@ -24,6 +24,11 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'baseline',
+    '@media (max-width: 600px)': {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: tokens.spacingVerticalS,
+    },
   },
   date: {
     color: tokens.colorNeutralForeground3,
@@ -57,6 +62,17 @@ export default function Archive() {
   const posts = getAllPosts();
   const groups = groupByMonth(posts);
 
+  // 日期格式化：将各种可解析的日期字符串格式化为 yyyy/mm/dd
+  const formatDate = (s?: string): string => {
+    if (!s) return '';
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}/${mm}/${dd}`;
+  };
+
   return (
     <div className={styles.container}>
       <Title2>归档</Title2>
@@ -67,7 +83,7 @@ export default function Archive() {
             {g.items.map((p) => (
               <div key={p.slug} className={styles.item}>
                 <FluentLink href={`/post/${p.slug}`}>{p.title}</FluentLink>
-                <Body1 className={styles.date}>{p.publishedAt ?? ''}</Body1>
+                <Body1 className={styles.date}>{formatDate(p.publishedAt)}</Body1>
               </div>
             ))}
           </div>

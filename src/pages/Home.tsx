@@ -30,6 +30,18 @@ const useStyles = makeStyles({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    "@media (max-width: 600px)": {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: tokens.spacingVerticalS,
+    },
+  },
+  // 让标题和摘要在小屏也能良好换行
+  titleText: {
+    wordBreak: 'break-word',
+  },
+  summaryText: {
+    wordBreak: 'break-word',
   },
 });
 
@@ -46,14 +58,25 @@ export default function Home() {
       })
     : all;
 
+  // 日期格式化：将各种可解析的日期字符串格式化为 yyyy/mm/dd
+  const formatDate = (s?: string): string => {
+    if (!s) return '';
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}/${mm}/${dd}`;
+  };
+
   return (
     <div className={styles.grid}>
       {posts.map((p) => (
         <Card key={p.slug} className={styles.card}>
-          <Title3>{p.title}</Title3>
-          {p.summary && <Body1>{p.summary}</Body1>}
+          <Title3 className={styles.titleText}>{p.title}</Title3>
+          {p.summary && <Body1 className={styles.summaryText}>{p.summary}</Body1>}
           <div className={styles.footerRow}>
-            <Subtitle2>{p.publishedAt}</Subtitle2>
+            <Subtitle2>{formatDate(p.publishedAt)}</Subtitle2>
             <Link href={`/post/${p.slug}`}>阅读更多</Link>
           </div>
         </Card>
