@@ -7,11 +7,9 @@ publishedAt: 2025-09-29
 
 # Hello World
 
-使用 Fluent UI 和 React 构建的博客示例。
+使用 Fluent UI 和 React 构建的博客。
 
 - 支持从 markdown 读取文章
-- 支持从 json 读取配置文件
-- 支持静态服务端预渲染（SSG）
 
 ```ts
 export const greet = (name: string) => `Hello, ${name}!`;

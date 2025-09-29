@@ -8,6 +8,8 @@ const useStyles = makeStyles({
     margin: '0 auto',
     lineHeight: 1.8,
     fontSize: '16px',
+    boxSizing: 'border-box',
+    width: '100%',
     '@media (max-width: 900px)': {
       padding: tokens.spacingHorizontalM,
       fontSize: '15px',
@@ -19,12 +21,21 @@ const useStyles = makeStyles({
     '& img': {
       maxWidth: '100%',
       height: 'auto',
+      display: 'block',
+      margin: '0 auto',
     },
     '& pre': {
       overflowX: 'auto',
       padding: tokens.spacingHorizontalM,
       backgroundColor: tokens.colorNeutralBackground2,
       borderRadius: tokens.borderRadiusMedium,
+      fontSize: '13px',
+      wordBreak: 'break-all',
+    },
+    '& table': {
+      width: '100%',
+      display: 'block',
+      overflowX: 'auto',
     },
   },
 });

@@ -1,0 +1,72 @@
+import { useParams } from 'react-router-dom';
+import { getAllPosts } from '../lib/content';
+import { Card, Title2, tokens, makeStyles } from '@fluentui/react-components';
+
+const useStyles = makeStyles({
+  grid: {
+    display: 'grid',
+    gap: tokens.spacingHorizontalM,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    alignItems: 'stretch',
+    '@media (min-width: 1200px)': {
+      gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    },
+    '@media (max-width: 900px)': {
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    },
+    '@media (max-width: 600px)': {
+      gridTemplateColumns: '1fr',
+      gap: tokens.spacingHorizontalS,
+    },
+  },
+  card: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: tokens.spacingVerticalM,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    '@media (max-width: 600px)': {
+      gap: tokens.spacingVerticalS,
+    },
+  },
+  titleText: {
+    wordBreak: 'break-word',
+    fontWeight: 600,
+  },
+  footerRow: {
+    marginTop: 'auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    '@media (max-width: 600px)': {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: tokens.spacingVerticalS,
+    },
+  },
+});
+
+export default function Group() {
+  const { groupName } = useParams();
+  const styles = useStyles();
+  const posts = getAllPosts().filter(p => p.group === groupName);
+  return (
+    <div>
+      <Title2>分组：{groupName}</Title2>
+      <div className={styles.grid}>
+        {posts.map((p) => (
+          <a key={p.slug} href={`/post/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }} tabIndex={0}>
+            <Card className={styles.card} tabIndex={-1}>
+              <div className={styles.titleText}>{p.title}</div>
+              <div className={styles.footerRow}>
+                <span>{p.publishedAt}</span>
+                <span style={{ color: tokens.colorBrandForeground1 }}>阅读更多</span>
+              </div>
+            </Card>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}

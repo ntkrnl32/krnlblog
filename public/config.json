@@ -1,5 +1,11 @@
 {
-  "title": "krnlblog",
-  "description": "A blog powered by React + Fluent UI + Vite",
-  "author": "Admin"
+  "title": "KrnlBlog",
+  "description": "NtKrnl32's blog powered by React + Fluent UI + Vite",
+  "footer": "Built with ❤️ by NtKrnl32",
+  "author": {
+    "name": "NtKrnl32",
+    "avatar": "https://a.krnl32.win/avatar/gc",
+    "bio": "一个...普通人？"
+  },
+  "icon": "https://a.krnl32.win/avatar/gc"
 }

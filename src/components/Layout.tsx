@@ -67,23 +67,51 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground1,
     color: tokens.colorNeutralForeground1,
   },
-  container: {
-    maxWidth: '920px',
-    margin: '0 auto',
-    padding: tokens.spacingHorizontalL,
+  mainWrap: {
     flex: 1,
-    "@media (max-width: 900px)": {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    width: '100%',
+    padding: tokens.spacingHorizontalL,
+    boxSizing: 'border-box',
+    '@media (max-width: 900px)': {
+      flexDirection: 'column',
       padding: tokens.spacingHorizontalM,
     },
-    "@media (max-width: 600px)": {
+    '@media (max-width: 600px)': {
+      flexDirection: 'column',
       padding: tokens.spacingHorizontalS,
+    },
+  },
+  container: {
+    flex: 1,
+    minWidth: 0,
+    maxWidth: '920px',
+    margin: 0,
+    padding: 0,
+  },
+  sidebar: {
+    width: '280px',
+    marginLeft: tokens.spacingHorizontalXXL,
+    background: tokens.colorNeutralBackground2,
+    borderRadius: tokens.borderRadiusMedium,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+    padding: tokens.spacingHorizontalL,
+    boxSizing: 'border-box',
+    '@media (max-width: 1100px)': {
+      display: 'none',
     },
   },
   footer: {
     marginTop: tokens.spacingVerticalXXL,
+    marginBottom: tokens.spacingVerticalM,
     paddingTop: tokens.spacingVerticalM,
     borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
     color: tokens.colorNeutralForeground3,
+    textAlign: 'center',
     "@media (max-width: 600px)": {
       paddingTop: tokens.spacingVerticalS,
       marginTop: tokens.spacingVerticalXL,
@@ -107,9 +135,11 @@ const useStyles = makeStyles({
   },
 });
 
+import { getNotice } from '../lib/content';
 export function Layout({ children }: PropsWithChildren) {
   const styles = useStyles();
-  const [site, setSite] = useState<{ title: string; description?: string } | null>(null);
+  const [site, setSite] = useState<any>(null);
+  const [notice, setNotice] = useState<string>('');
   const [isDark, setIsDark] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('theme');
@@ -134,11 +164,60 @@ export function Layout({ children }: PropsWithChildren) {
     } catch {}
   }, [isDark]);
 
+  // 设置页面标题
+  useEffect(() => {
+    if (!site?.title) return;
+    // 设置 favicon
+    if (site.icon) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = site.icon;
+    }
+    // 设置标题
+    if (location.pathname === '/') {
+      document.title = site.title;
+    } else if (location.pathname === '/archive') {
+      document.title = `归档 - ${site.title}`;
+    } else if (location.pathname === '/about') {
+      document.title = `关于 - ${site.title}`;
+    } else if (location.pathname.startsWith('/tag/')) {
+      const tag = decodeURIComponent(location.pathname.replace('/tag/', ''));
+      document.title = `标签：${tag} - ${site.title}`;
+    } else if (location.pathname.startsWith('/group/')) {
+      const group = decodeURIComponent(location.pathname.replace('/group/', ''));
+      document.title = `分组：${group} - ${site.title}`;
+    } else if (location.pathname === '/' && location.search.includes('q=')) {
+      document.title = `搜索 - ${site.title}`;
+    } else if (location.pathname.startsWith('/post/')) {
+      // 文章页标题在 Post 组件中动态设置
+    } else {
+      document.title = `${site.title}`;
+    }
+    if (location.pathname === '/' && location.search.includes('q=')) {
+      document.title = `搜索 - ${site.title}`;
+    }
+  }, [site, location]);
+
   useEffect(() => {
     fetch('/config.json')
       .then((r) => r.json())
       .then(setSite)
       .catch(() => setSite({ title: 'krnlblog' }));
+    // 只渲染 type=notice 的正文
+    try {
+      const noticePost = getNotice?.();
+      if (noticePost) {
+        setNotice(noticePost.html);
+      } else {
+        setNotice('<p>暂无公告</p>');
+      }
+    } catch {
+      setNotice('<p>暂无公告</p>');
+    }
   }, []);
 
   useEffect(() => {
@@ -213,8 +292,29 @@ export function Layout({ children }: PropsWithChildren) {
           </div>
         </div>
       </header>
-      <main className={styles.container}>{children}</main>
-      <footer className={styles.footer}>Powered by React + Fluent UI + Vite</footer>
+      <main className={styles.mainWrap}>
+        <div className={styles.container}>{children}</div>
+        <aside className={styles.sidebar}>
+          {site?.author && (
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <img src={site.author.avatar || site.icon || '/vite.svg'} alt="avatar" style={{ width: 48, height: 48, borderRadius: '50%' }} />
+                <div>
+                  <div style={{ fontWeight: 600 }}>{site.author.name}</div>
+                  <div style={{ fontSize: 13, color: tokens.colorNeutralForeground3 }}>{site.author.bio}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>公告</div>
+            <div style={{ fontSize: 14 }} dangerouslySetInnerHTML={{ __html: notice }} />
+          </div>
+        </aside>
+      </main>
+      <footer className={styles.footer}>
+        <span dangerouslySetInnerHTML={{ __html: site?.footer || 'Powered by React + Fluent UI + Vite' }} />
+      </footer>
 
       {ctx.open && (
         <>
