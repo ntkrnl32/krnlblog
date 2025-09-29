@@ -6,8 +6,6 @@ publishedAt: 2025-09-29
 tags: ['Tech']
 ---
 
-# Hello World
-
 使用 Fluent UI 和 React 构建的博客。
 
 - 支持从 markdown 读取文章
