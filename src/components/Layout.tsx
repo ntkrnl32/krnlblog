@@ -109,6 +109,18 @@ const useStyles = makeStyles({
   desktopNav: {
     display: 'flex',
   },
+  navLink: {
+    textDecoration: 'none',
+    color: 'inherit',
+    '&:hover': {
+      textDecoration: 'none',
+      color: 'inherit',
+    },
+    '&:active': {
+      textDecoration: 'none',
+      color: 'inherit',
+    },
+  },
   mobileNav: {
     display: 'none',
   },
@@ -315,17 +327,17 @@ export function Layout({ children }: PropsWithChildren) {
         <div className={styles.navBelow}>
           <div className={styles.desktopNav}>
             <TabList selectedValue={currentTab}>
-              <Tab value="home">
-                <Link href="/">首页</Link>
+                  <Tab value="home">
+                <Link className={styles.navLink} href="/">首页</Link>
               </Tab>
               <Tab value="archive">
-                <Link href="/archive">归档</Link>
+                <Link className={styles.navLink} href="/archive">归档</Link>
               </Tab>
               <Tab value="search">
-                <Link href="/search">搜索</Link>
+                <Link className={styles.navLink} href="/search">搜索</Link>
               </Tab>
               <Tab value="about">
-                <Link href={site?.aboutMenuHref || '/about'}>关于</Link>
+                <Link className={styles.navLink} href={site?.aboutMenuHref || '/about'}>关于</Link>
               </Tab>
             </TabList>
           </div>
