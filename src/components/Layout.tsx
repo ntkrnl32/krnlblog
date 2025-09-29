@@ -1,8 +1,38 @@
-import { FluentProvider, webLightTheme, webDarkTheme, tokens, TabList, Tab, makeStyles, Link, Button, Menu, MenuTrigger, MenuPopover, MenuList, MenuItem, Input } from '@fluentui/react-components';
-import { Notebook20Regular, MoreHorizontal20Regular } from '@fluentui/react-icons';
+const globalCodeBlockStyle = `
+  pre, code {
+    word-break: break-all;
+    white-space: pre-wrap;
+    font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  pre {
+    overflow-x: auto;
+    background: #1818180a;
+    border-radius: 6px;
+    padding: 1em;
+    margin: 1em 0;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  @media (max-width: 600px) {
+    pre, code {
+      font-size: 13px;
+    }
+    pre {
+      white-space: pre;
+      word-break: break-all;
+      overflow-x: auto;
+      max-width: 100vw;
+    }
+  }
+`;
+
+import { FluentProvider, webLightTheme, webDarkTheme, tokens, TabList, Tab, makeStyles, Link, Button } from '@fluentui/react-components';
+import { Notebook20Regular } from '@fluentui/react-icons';
 import type { PropsWithChildren } from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const useStyles = makeStyles({
   header: {
@@ -19,6 +49,8 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
+    justifyContent: 'center',
+    width: '100%',
   },
   title: {
     fontSize: tokens.fontSizeBase600,
@@ -29,6 +61,9 @@ const useStyles = makeStyles({
   },
   navBelow: {
     marginTop: tokens.spacingVerticalS,
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
   },
   navRight: {
     marginLeft: 'auto',
@@ -43,16 +78,10 @@ const useStyles = makeStyles({
     },
   },
   desktopNav: {
-    display: 'block',
-    "@media (max-width: 600px)": {
-      display: 'none',
-    },
+    display: 'flex',
   },
   mobileNav: {
     display: 'none',
-    "@media (max-width: 600px)": {
-      display: 'block',
-    },
   },
   searchBox: {
     width: '260px',
@@ -77,6 +106,7 @@ const useStyles = makeStyles({
     width: '100%',
     padding: tokens.spacingHorizontalL,
     boxSizing: 'border-box',
+    zIndex: 1, // 保证主内容不被菜单遮挡
     '@media (max-width: 900px)': {
       flexDirection: 'column',
       padding: tokens.spacingHorizontalM,
@@ -136,10 +166,13 @@ const useStyles = makeStyles({
 });
 
 import { getNotice } from '../lib/content';
+import RenderedPage from './RenderedPage';
 export function Layout({ children }: PropsWithChildren) {
+  // 已在顶部声明 navigate/location
   const styles = useStyles();
+  const location = useLocation();
   const [site, setSite] = useState<any>(null);
-  const [notice, setNotice] = useState<string>('');
+  const [notice, setNotice] = useState<{ html: string; title?: string } | null>(null);
   const [isDark, setIsDark] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('theme');
@@ -148,12 +181,11 @@ export function Layout({ children }: PropsWithChildren) {
     } catch {}
     return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [search, setSearch] = useState<string>(() => new URLSearchParams(window.location.search).get('q') ?? '');
   const [ctx, setCtx] = useState<{ open: boolean; x: number; y: number }>({ open: false, x: 0, y: 0 });
   const currentTab = location.pathname.startsWith('/archive')
     ? 'archive'
+    : location.pathname.startsWith('/search')
+    ? 'search'
     : location.pathname.startsWith('/about')
     ? 'about'
     : 'home';
@@ -211,24 +243,16 @@ export function Layout({ children }: PropsWithChildren) {
     try {
       const noticePost = getNotice?.();
       if (noticePost) {
-        setNotice(noticePost.html);
+        setNotice({ html: noticePost.html, title: noticePost.title });
       } else {
-        setNotice('<p>暂无公告</p>');
+        setNotice({ html: '<p>暂无公告</p>' });
       }
     } catch {
-      setNotice('<p>暂无公告</p>');
+      setNotice({ html: '<p>暂无公告</p>' });
     }
   }, []);
 
-  useEffect(() => {
-    const q = new URLSearchParams(location.search).get('q') ?? '';
-    setSearch(q);
-  }, [location.search]);
 
-  const submitSearch = (q: string) => {
-    const next = q.trim();
-    navigate(next ? `/?q=${encodeURIComponent(next)}` : '/');
-  };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -238,23 +262,18 @@ export function Layout({ children }: PropsWithChildren) {
   const closeContextMenu = () => setCtx({ open: false, x: 0, y: 0 });
 
   return (
-    <FluentProvider theme={isDark ? webDarkTheme : webLightTheme} className={styles.root} onContextMenu={handleContextMenu}>
+    <>
+      <style>{globalCodeBlockStyle}</style>
+      <FluentProvider theme={isDark ? webDarkTheme : webLightTheme} className={styles.root} onContextMenu={handleContextMenu}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <Notebook20Regular />
+          {site?.icon ? (
+            <img src={site.icon} alt="logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+          ) : (
+            <Notebook20Regular />
+          )}
           <div className={styles.title}>{site?.title ?? 'krnlblog'}</div>
-          <div className={styles.navRight}>
-            <Input
-              className={styles.searchBox}
-              placeholder="搜索文章"
-              value={search}
-             onChange={(_, data) => setSearch(data.value)}
-             onKeyDown={(e) => {
-               if (e.key === 'Enter') submitSearch(search);
-             }}
-             aria-label="搜索"
-             />
-          </div>
+          {/* 搜索输入框已移除，统一用搜索页 */}
         </div>
         <div className={styles.navBelow}>
           <div className={styles.desktopNav}>
@@ -265,17 +284,20 @@ export function Layout({ children }: PropsWithChildren) {
               <Tab value="archive">
                 <Link href="/archive">归档</Link>
               </Tab>
+              <Tab value="search">
+                <Link href="/search">搜索</Link>
+              </Tab>
               <Tab value="about">
                 <Link href="/about">关于</Link>
               </Tab>
             </TabList>
           </div>
-          <div className={styles.mobileNav}>
+          {/* <div className={styles.mobileNav}>
             <Menu>
               <MenuTrigger>
                 <Button appearance="subtle" icon={<MoreHorizontal20Regular />} aria-label="菜单" />
               </MenuTrigger>
-              <MenuPopover>
+              <MenuPopover style={{ zIndex: 1101 }}>
                 <MenuList>
                   <MenuItem>
                     <Link href="/">首页</Link>
@@ -289,14 +311,15 @@ export function Layout({ children }: PropsWithChildren) {
                 </MenuList>
               </MenuPopover>
             </Menu>
-          </div>
+          </div> */}
         </div>
       </header>
       <main className={styles.mainWrap}>
         <div className={styles.container}>{children}</div>
         <aside className={styles.sidebar}>
+          {/* 作者信息块 */}
           {site?.author && (
-            <div style={{ marginBottom: 32 }}>
+            <section style={{ marginBottom: 32, paddingBottom: 20, borderBottom: `1px solid ${tokens.colorNeutralStroke2}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <img src={site.author.avatar || site.icon || '/vite.svg'} alt="avatar" style={{ width: 48, height: 48, borderRadius: '50%' }} />
                 <div>
@@ -304,12 +327,15 @@ export function Layout({ children }: PropsWithChildren) {
                   <div style={{ fontSize: 13, color: tokens.colorNeutralForeground3 }}>{site.author.bio}</div>
                 </div>
               </div>
-            </div>
+            </section>
           )}
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>公告</div>
-            <div style={{ fontSize: 14 }} dangerouslySetInnerHTML={{ __html: notice }} />
-          </div>
+          {/* 公告块 */}
+          <section style={{ marginBottom: 32, paddingBottom: 20 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>公告</div>
+            <div style={{ fontSize: 14 }}>
+              <RenderedPage html={notice?.html || ''} />
+            </div>
+          </section>
         </aside>
       </main>
       <footer className={styles.footer}>
@@ -327,5 +353,6 @@ export function Layout({ children }: PropsWithChildren) {
         </>
       )}
     </FluentProvider>
+    </>
   );
 }

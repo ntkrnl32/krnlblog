@@ -12,6 +12,7 @@ export type PostMeta = {
   tags?: string[];
   group?: string;
   type?: 'post' | 'notice' | 'page' | '';
+  showTitle?: boolean;
 };
 
 export type Post = PostMeta & {
@@ -40,6 +41,7 @@ const posts: Post[] = Object.entries(modules).map(([path, raw]) => {
     tags,
     group: data.group ? String(data.group) : undefined,
     type: type === 'notice' ? 'notice' : type === 'page' ? 'page' : (type === 'post' || !type) ? 'post' : '',
+    showTitle: typeof data.showTitle === 'boolean' ? data.showTitle : (data.showTitle === 'false' ? false : !!data.showTitle),
     html,
   };
 });
@@ -68,10 +70,10 @@ export function getAllNormalPosts(): PostMeta[] {
   return posts.filter(p => !p.type || p.type === 'post').map(({ html, ...meta }) => meta);
 }
 
-// 只允许 type=post 或空的 slug 被访问
+// 允许 type=post、page 或空的 slug 被访问
 export function getPostBySlug(slug: string): Post | undefined {
   const p = posts.find((p) => p.slug === slug);
   if (!p) return undefined;
-  if (!p.type || p.type === 'post') return p;
+  if (!p.type || p.type === 'post' || p.type === 'page') return p;
   return undefined;
 }

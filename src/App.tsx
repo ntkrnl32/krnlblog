@@ -7,6 +7,9 @@ import About from './pages/About';
 import Archive from './pages/Archive';
 import Tag from './pages/Tag';
 import Group from './pages/Group';
+import NotFound from './pages/NotFound';
+import Page from './pages/Page';
+import SearchPage from './pages/Search';
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
           <Route path="/archive" element={<Archive />} />
           <Route path="/tag/:tagName" element={<Tag />} />
           <Route path="/group/:groupName" element={<Group />} />
+          <Route path="search" element={<SearchPage />} />
+          <Route path=":slug" element={<Page />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </BrowserRouter>
