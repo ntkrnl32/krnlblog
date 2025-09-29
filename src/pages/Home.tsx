@@ -1,4 +1,5 @@
-import { Card, Title3, Subtitle2, Body1, tokens, makeStyles } from '@fluentui/react-components';
+import { tokens, makeStyles } from '@fluentui/react-components';
+import PostCard from '../components/PostCard';
 import { getAllPosts } from '../lib/content';
 import { useSearchParams } from 'react-router-dom';
 
@@ -75,28 +76,7 @@ export default function Home() {
   return (
     <div className={styles.grid}>
       {posts.map((p) => (
-        <a key={p.slug} href={`/post/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }} tabIndex={0}>
-          <Card className={styles.card} tabIndex={-1}>
-            <Title3 className={styles.titleText}>{p.title}</Title3>
-            {p.summary && <Body1 className={styles.summaryText}>{p.summary}</Body1>}
-            {p.group && (
-              <div style={{ marginTop: 4 }}>
-                <a href={`/group/${encodeURIComponent(p.group)}`} style={{ color: tokens.colorBrandForeground1, fontSize: 13, textDecoration: 'underline' }}>分组：{p.group}</a>
-              </div>
-            )}
-            {p.tags && p.tags.length > 0 && (
-              <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                {p.tags.map(tag => (
-                  <a key={tag} href={`/tag/${encodeURIComponent(tag)}`} style={{ color: tokens.colorBrandForeground2, fontSize: 13, background: tokens.colorNeutralBackground3, borderRadius: 4, padding: '1px 8px', textDecoration: 'none' }}>#{tag}</a>
-                ))}
-              </div>
-            )}
-            <div className={styles.footerRow}>
-              <Subtitle2>{formatDate(p.publishedAt)}</Subtitle2>
-              <span style={{ color: tokens.colorBrandForeground1 }}>阅读更多</span>
-            </div>
-          </Card>
-        </a>
+        <PostCard key={p.slug} post={p} showDate showReadMore formatDate={formatDate} />
       ))}
     </div>
   );

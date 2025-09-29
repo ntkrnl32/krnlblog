@@ -1,4 +1,5 @@
-import { Title2, Title3, Body1, Card, tokens, makeStyles } from '@fluentui/react-components';
+import { Title2, Title3, tokens, makeStyles } from '@fluentui/react-components';
+import PostCard from '../components/PostCard';
 import { getAllPosts, type PostMeta } from '../lib/content';
 
 const useStyles = makeStyles({
@@ -107,27 +108,7 @@ export default function Archive() {
           <Title3>{g.key}</Title3>
           <div className={styles.list}>
             {g.items.map((p) => (
-              <a key={p.slug} href={`/post/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }} tabIndex={0}>
-                <Card className={styles.card} tabIndex={-1}>
-                  <div className={styles.titleText}>{p.title}</div>
-                  {p.group && (
-                    <div style={{ marginTop: 4 }}>
-                      <a href={`/group/${encodeURIComponent(p.group)}`} style={{ color: tokens.colorBrandForeground1, fontSize: 13, textDecoration: 'underline' }}>分组：{p.group}</a>
-                    </div>
-                  )}
-                  {p.tags && p.tags.length > 0 && (
-                    <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {p.tags.map(tag => (
-                        <a key={tag} href={`/tag/${encodeURIComponent(tag)}`} style={{ color: tokens.colorBrandForeground2, fontSize: 13, background: tokens.colorNeutralBackground3, borderRadius: 4, padding: '1px 8px', textDecoration: 'none' }}>#{tag}</a>
-                      ))}
-                    </div>
-                  )}
-                  <div className={styles.footerRow}>
-                    <Body1 style={{ color: tokens.colorNeutralForeground3 }}>{formatDate(p.publishedAt)}</Body1>
-                    <span style={{ color: tokens.colorBrandForeground1 }}>阅读更多</span>
-                  </div>
-                </Card>
-              </a>
+              <PostCard key={p.slug} post={p} showDate showReadMore formatDate={formatDate} />
             ))}
           </div>
         </section>

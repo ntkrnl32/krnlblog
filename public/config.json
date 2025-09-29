@@ -1,11 +1,12 @@
 {
   "title": "KrnlBlog",
-  "description": "NtKrnl32's blog powered by React + Fluent UI + Vite",
+  "description": "NtKrnl32's blog... In public preview!!",
   "footer": "Built with ❤️ by NtKrnl32",
   "author": {
     "name": "NtKrnl32",
     "avatar": "https://a.krnl32.win/avatar/gc",
     "bio": "一个...普通人？"
   },
-  "icon": "https://a.krnl32.win/avatar/gc"
+  "icon": "https://a.krnl32.win/avatar/gc",
+  "aboutMenuHref": "https://krnl32.win"
 }

@@ -47,10 +47,28 @@ const useStyles = makeStyles({
   },
   headerTop: {
     display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    gap: tokens.spacingVerticalXS,
+  },
+  titleRow: {
+    display: 'flex',
     alignItems: 'center',
     gap: tokens.spacingHorizontalM,
     justifyContent: 'center',
-    width: '100%',
+  },
+  desc: {
+    textAlign: 'center',
+    color: tokens.colorNeutralForeground3,
+    fontSize: '16px',
+    marginTop: '2px',
+    marginBottom: '2px',
+    lineHeight: 1.5,
+    '@media (max-width: 600px)': {
+      fontSize: '14px',
+    },
   },
   title: {
     fontSize: tokens.fontSizeBase600,
@@ -267,13 +285,17 @@ export function Layout({ children }: PropsWithChildren) {
       <FluentProvider theme={isDark ? webDarkTheme : webLightTheme} className={styles.root} onContextMenu={handleContextMenu}>
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          {site?.icon ? (
-            <img src={site.icon} alt="logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
-          ) : (
-            <Notebook20Regular />
+          <div className={styles.titleRow}>
+            {site?.icon ? (
+              <img src={site.icon} alt="logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+            ) : (
+              <Notebook20Regular />
+            )}
+            <div className={styles.title}>{site?.title ?? 'krnlblog'}</div>
+          </div>
+          {site?.description && (
+            <div className={styles.desc}>{site.description}</div>
           )}
-          <div className={styles.title}>{site?.title ?? 'krnlblog'}</div>
-          {/* 搜索输入框已移除，统一用搜索页 */}
         </div>
         <div className={styles.navBelow}>
           <div className={styles.desktopNav}>
@@ -288,7 +310,7 @@ export function Layout({ children }: PropsWithChildren) {
                 <Link href="/search">搜索</Link>
               </Tab>
               <Tab value="about">
-                <Link href="/about">关于</Link>
+                <Link href={site?.aboutMenuHref || '/about'}>关于</Link>
               </Tab>
             </TabList>
           </div>

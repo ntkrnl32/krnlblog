@@ -110,7 +110,15 @@ export default function SearchPage() {
       </div>
       <div className={styles.grid}>
         {posts.map((p) => (
-          <PostCard key={p.slug} post={p} />
+          <PostCard key={p.slug} post={p} showDate showReadMore formatDate={(s) => {
+            if (!s) return '';
+            const d = new Date(s);
+            if (isNaN(d.getTime())) return s;
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}/${mm}/${dd}`;
+          }} />
         ))}
       </div>
     </>

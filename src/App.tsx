@@ -22,7 +22,7 @@ function App() {
           <Route path="/archive" element={<Archive />} />
           <Route path="/tag/:tagName" element={<Tag />} />
           <Route path="/group/:groupName" element={<Group />} />
-          <Route path="search" element={<SearchPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path=":slug" element={<Page />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

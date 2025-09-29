@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { getAllPosts } from '../lib/content';
-import { Card, Title2, tokens, makeStyles } from '@fluentui/react-components';
+import { Title2, tokens, makeStyles } from '@fluentui/react-components';
+import PostCard from '../components/PostCard';
 
 const useStyles = makeStyles({
   grid: {
@@ -56,15 +57,7 @@ export default function Group() {
       <Title2>分组：{groupName}</Title2>
       <div className={styles.grid}>
         {posts.map((p) => (
-          <a key={p.slug} href={`/post/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }} tabIndex={0}>
-            <Card className={styles.card} tabIndex={-1}>
-              <div className={styles.titleText}>{p.title}</div>
-              <div className={styles.footerRow}>
-                <span>{p.publishedAt}</span>
-                <span style={{ color: tokens.colorBrandForeground1 }}>阅读更多</span>
-              </div>
-            </Card>
-          </a>
+          <PostCard key={p.slug} post={p} showDate showReadMore />
         ))}
       </div>
     </div>
